@@ -7,3 +7,8 @@ This file contains ACLs, Anyconnect user, IPSec Tunnel, Group Policies each divi
 
 There is a lot of stuff that still needs to be added and if you find that the scipt ends prematurely or parses something wrong, please don't hesitate to tell me.
 The last entry of the output file will always be the "Object-Groups" table.
+
+Part of this was copied from https://github.com/AlekzNet/Cisco-ASA-ACL-toolkit 
+A big thank you for giving me a starting point.
+
+AlektNet is a way better pythonist then my btw. (This is obviously my very first python experience)
