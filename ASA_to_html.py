@@ -139,6 +139,8 @@ re_match_cnumber = re.compile('^crypto\smap\s\S+\s(?P<map_number>\S+)\s.*', re.I
 re_match_dynmapnumber = re.compile('^crypto\smap\s\S+\s(?P<map_number>\S+)\s\S+\sdynamic\s.*', re.IGNORECASE)
 # Anyconnect User
 re_service_type_remote = re.compile('^\sservice-type\sremote-access', re.IGNORECASE)
+# Find all Peer Names
+re_peer_name = re.compile('^name\s(?P<ip>\S+)\s(?P<name>\S+)')
 
 
 ###################################################### Initialise variables n Stuff. False? True? YOU Decide! ######################################################
@@ -239,6 +241,7 @@ group_policy_unused = {}  # Not used anyconnect group policies
 anyconnect_user_unused = {}  # Not used anyconnect user
 user_name = 'Yeah'
 ikev1_offerings = set()
+peer_names = {} # Peer names
 
 
 ###################################################### HTML Header and Table Functions ######################################################
@@ -375,12 +378,21 @@ def html_ipsec_peer_tbl(key):
 #Print IPSec Phase 1 Parameters as a HTML table column
 def html_ipsec_phase1_tbl(key):
     tunnelgrp = ''.join([peer.split(' ')[1] for peer in ipsec[key] if 'Peer:' in peer])
-    if 'ikev1' == ''.join([phase1.split(' ')[1] for phase1 in tunnel_group[tunnelgrp] if 'Pre-Shared-Key:' in phase1]):
-        for ikev1_key in list(ikev1_pols.keys()):
-            print('<br/>' + ikev1_key + '<br/>' + '<br/>'.join([str(x) for x in ikev1_pols.get(ikev1_key)]) + '<br/>')
-    elif 'ikev2' == ''.join([phase1.split(' ')[1] for phase1 in tunnel_group[tunnelgrp] if 'Pre-Shared-Key:' in phase1]):
-        for ikev2_key in list(ikev2_pols.keys()):
-            print('<br/>' + ikev2_key + '<br/>' + '<br/>'.join([str(x) for x in ikev2_pols.get(ikev2_key)]) + '<br/>')
+    if tunnelgrp in peer_names.keys():
+        tunnelgrp = ''.join(peer_names[tunnelgrp])
+        if 'ikev1' == ''.join([phase1.split(' ')[1] for phase1 in tunnel_group[tunnelgrp] if 'Pre-Shared-Key:' in phase1]):
+            for ikev1_key in list(ikev1_pols.keys()):
+                print('<br/>' + ikev1_key + '<br/>' + '<br/>'.join([str(x) for x in ikev1_pols.get(ikev1_key)]) + '<br/>')
+        elif 'ikev2' == ''.join([phase1.split(' ')[1] for phase1 in tunnel_group[tunnelgrp] if 'Pre-Shared-Key:' in phase1]):
+            for ikev2_key in list(ikev2_pols.keys()):
+                print('<br/>' + ikev2_key + '<br/>' + '<br/>'.join([str(x) for x in ikev2_pols.get(ikev2_key)]) + '<br/>')
+    else:
+        if 'ikev1' == ''.join([phase1.split(' ')[1] for phase1 in tunnel_group[tunnelgrp] if 'Pre-Shared-Key:' in phase1]):
+            for ikev1_key in list(ikev1_pols.keys()):
+                print('<br/>' + ikev1_key + '<br/>' + '<br/>'.join([str(x) for x in ikev1_pols.get(ikev1_key)]) + '<br/>')
+        elif 'ikev2' == ''.join([phase1.split(' ')[1] for phase1 in tunnel_group[tunnelgrp] if 'Pre-Shared-Key:' in phase1]):
+            for ikev2_key in list(ikev2_pols.keys()):
+                print('<br/>' + ikev2_key + '<br/>' + '<br/>'.join([str(x) for x in ikev2_pols.get(ikev2_key)]) + '<br/>')
 
 # Print all IPsec Parameters
 def html_ipsec_phase2_ike_tbl(key):
@@ -1146,6 +1158,8 @@ for line in config_lines:
 
 # Parse config and fill dictionaries
 for line in config_lines:
+    if re_peer_name.match(line):
+        add_values(peer_names, re_peer_name.match(line).group('name'), re_peer_name.match(line).group('ip'))
     if re_ippool.match(line):
         ippools_unused.add(re_ippool.match(line).group('ippool').strip())
     if re_objnet.match(line):
@@ -1715,4 +1729,3 @@ sys.stdout = original_stdout
 ########################### ToDos ########################
 # 1. NAT ebenfalls parsen
 # 2. Hit-Counter aus ACL.txt mit aufnehmen in ACLs
-print(pol_acl_used_set)
