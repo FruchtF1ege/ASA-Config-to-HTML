@@ -11,4 +11,4 @@ The last entry of the output file will always be the "Object-Groups" table.
 Part of this was copied from https://github.com/AlekzNet/Cisco-ASA-ACL-toolkit 
 A big thank you for giving me a starting point.
 
-AlektNet is a way better pythonist then my btw. (This is obviously my very first python experience)
+AlektNet is a way better pythonist then me btw. (This is obviously my very first python experience)
